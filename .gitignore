@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 *.pl
 *.sav
+*.gif
+*.jpg
