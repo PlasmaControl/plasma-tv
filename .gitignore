@@ -166,3 +166,4 @@ cython_debug/
 *.txt
 *.mp4
 *.pkl
+*.hdf5
