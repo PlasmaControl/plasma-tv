@@ -7,6 +7,21 @@ import pickle
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+def _make_samples():
+    
+    # Make samples for training
+
+    # Number of samples
+    nsample = 10
+
+    # Make R0s, Z0s, A0s, M0s
+    R0s = np.random.uniform(low=[1.4, 1.3], high=[1.7, 1.6], size=(nsample, 2))
+    Z0s = np.random.uniform(low=[-1.3, -1.2], high=[-1.2, -0.9], size=(nsample, 2))
+    A0s = np.ones((nsample, 2))
+    M0s = np.ones((nsample, 2)) * 0.015
+    
+    return R0s, Z0s, A0s, M0s, nsample
+
 def _make_setup():
 
 #----- Sample input
@@ -14,7 +29,7 @@ def _make_setup():
     Z0s      = [-1.084,-1.249];   #Z of radiation point Z1,Z2
     A0s      = [+1.000,+1.000];   #Amplitude
     M0s      = [+0.015,+0.015];   #Margins for
-    do_plot  = True               #Show image plot
+    do_plot  = False               #Show image plot
     save_name= 'synthetic_outs_2pnt.pl'
 #-------
 
@@ -27,11 +42,7 @@ def _make_setup():
         Rinfo[key] = [];
     
 #--- Append R-info here to do the scan 
-    Rinfo['R0s'].append(R0s)
-    Rinfo['Z0s'].append(Z0s)
-    Rinfo['A0s'].append(A0s)
-    Rinfo['M0s'].append(M0s)
-    Rinfo['nsample'] += 1
+    Rinfo['R0s'], Rinfo['Z0s'], Rinfo['A0s'], Rinfo['M0s'], Rinfo['nsample'] = _make_samples()
 
     #Do plot and out(save) file name
     Rinfo['doplot']  = do_plot 
@@ -175,7 +186,7 @@ def _integrate_image(Rinfo={},info_ind=0,camgeo={}):
         print('>>> Given emission info is wrong!')
         exit()
 
-    print('>>> Case #',Rinfo['nsample'])
+    print('>>> Case #',info_ind)
 
     for i,R0 in tqdm(enumerate(R0s)):
         image, inver = _generate_image(R0s[i],Z0s[i],A0s[i],M0s[i],cam_image,cam_inver,camgeo)
@@ -276,6 +287,7 @@ def _main():
     output['inver']     = {}
 
     for rind in range(Rinfo['nsample']):
+        # print(Rinfo['R0s'][rind])
         output['image'][rind],output['inver'][rind] = _integrate_image(Rinfo,rind,camgeo)
         if Rinfo['doplot']: _draw(output['image'][rind],output['inver'][rind],camgeo)
 
