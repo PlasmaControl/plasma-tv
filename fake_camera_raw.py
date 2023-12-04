@@ -12,7 +12,7 @@ def _make_samples():
     # Make samples for training
 
     # Number of samples
-    nsample = 10
+    nsample = 1000
 
     # Make R0s, Z0s, A0s, M0s
     R0s = np.random.uniform(low=[1.4, 1.3], high=[1.7, 1.6], size=(nsample, 2))
