@@ -1,11 +1,9 @@
-import sys,os,time
+import os
 import numpy as np
-from scipy import sparse
 from scipy.io import readsav
 from scipy.interpolate import interp1d
 import pickle
-import matplotlib.pyplot as plt
-from tqdm import tqdm
+import h5py
 
 def _make_samples():
     
@@ -33,81 +31,17 @@ def _make_samples():
 
 def _make_setup():
 
-#----- Sample input
-    R0s      = [+1.396,+1.485];   #R of radiation point R1,R2
-    Z0s      = [-1.084,-1.249];   #Z of radiation point Z1,Z2
-    A0s      = [+1.000,+1.000];   #Amplitude
-    M0s      = [+0.015,+0.015];   #Margins for
-    do_plot  = True               #Show image plot
-    save_name= 'synthetic_outs_2pnt.pl'
-#-------
-
-    #Run info
-    Rinfo = {} 
+    save_name= 'synthetic_outs_v3.h5'
+    chunk_size = 7
     
-    #Add radiation geometry info
-    Rinfo['nsample'] = 0
-    for key in ['R0s','Z0s','A0s','M0s']:
-        Rinfo[key] = [];
-    
-#--- Append R-info here to do the scan 
+    Rinfo = {}
+    Rinfo['outfile'], Rinfo['chunk_size'] = save_name, chunk_size
     Rinfo['R0s'], Rinfo['Z0s'], Rinfo['A0s'], Rinfo['M0s'], Rinfo['nsample'] = _make_samples()
-    # Rinfo['R0s'].append(R0s)
-    # Rinfo['Z0s'].append(Z0s)
-    # Rinfo['A0s'].append(A0s)
-    # Rinfo['M0s'].append(M0s)
-    # Rinfo['nsample'] += 1
 
-    #Do plot and out(save) file name
-    Rinfo['doplot']  = do_plot 
-    Rinfo['outfile'] = save_name    
-
-    return Rinfo
-
-def _draw(cam_image=[],cam_inver=[],camgeo={}):
-
-    #Draw synthetic/inverted images
-
-    #cam_image: Synthetic image
-    #cam_inver: Inverted image
-    #cam_geo:   Camera geometry
-
-    fig = plt.figure(1)
+    if Rinfo['nsample'] < Rinfo['chunk_size']:
+        Rinfo['chunk_size'] = Rinfo['nsample']
     
-    #Draw inverted image
-    plt.subplot(1,3,1)
-    plt.title('Inverted')
-    plt.pcolormesh(camgeo['inv_x'],camgeo['inv_y'],cam_inver)       
-    plt.xlabel('R[m]')
-    plt.ylabel('Z[m]')
-
-    #Draw synthetic image
-    plt.subplot(1,3,2)
-    plt.title('Synthetic raw')
-    plt.pcolormesh(cam_image)
-    plt.xlabel('X[#]')
-    plt.ylabel('Y[#]')
-
-    #Draw synthetic image with wall picture
-    xx = []; yy = [];
-    plt.subplot(1,3,3)
-    plt.title('Overlay')
-    for ih in range(camgeo['cam_x'].shape[0]):
-        for iw in range(camgeo['cam_x'].shape[1]):
-            if cam_image[ih,iw]>0.01:
-                xx.append(iw); yy.append(ih)
-    plt.pcolormesh(camgeo['tar_r'])
-    plt.scatter(xx,yy,marker='x',color='r',s=0.1)
-    plt.xlabel('X[#]')
-    plt.ylabel('Y[#]')
-
-    plt.subplots_adjust(left=0.1,
-                        bottom=0.1, 
-                        right=0.9, 
-                        top=0.9, 
-                        wspace=0.3, 
-                        hspace=0.1)
-    plt.show()
+    return Rinfo
 
 def _load_camera(camera_save='Camera_geo.pl',filename1='geom_240perp_unwarp_2022fwd.sav',filename2='cam240perp_geometry_2022.sav'):
 
@@ -194,61 +128,32 @@ def _integrate_image(Rinfo={},info_ind=0,camgeo={}):
     M0s   = Rinfo['M0s'][info_ind]
 
     cam_image = np.zeros(camgeo['cam_x'].shape)
-    cam_inver = np.zeros((camgeo['inv_y'].shape[0],camgeo['inv_x'].shape[0]))
 
-    if not (len(R0s)==len(Z0s)==len(A0s)==len(M0s)):
-        print('>>> Given emission info is wrong!')
-        exit()
-
-    print('>>> Case #',Rinfo['nsample'])
-
-    for i,R0 in tqdm(enumerate(R0s)):
-        image, inver = _generate_image(R0s[i],Z0s[i],A0s[i],M0s[i],cam_image,cam_inver,camgeo)
-
+    for i in range(len((R0s))):
+        image = _generate_image(R0s[i],Z0s[i],A0s[i],M0s[i],cam_image,camgeo)
         cam_image += image
-        cam_inver += inver
+        
+    return cam_image
 
-    return cam_image, cam_inver
-
-def _generate_image(R0=0.,Z0=0.,A0=0.,M0=0.,cam_image=[],cam_inver=[],camgeo={}):
-
-    # Make images by emission ring at (R0,Z0)[m] with A0 amplitude, M0 [m] thickness
-    # with camgeo info
-
-    for iw in range(camgeo['cam_x'].shape[1]):
-        for ih in range(camgeo['cam_x'].shape[0]):
-
-            # Skip 0.0.0 pixels
-            if (camgeo['tar_x'][ih,iw]==0.): continue
-
-            # Location of emission ring along the line of sight (LOS)
-            tt = (Z0-camgeo['cam_z'][ih,iw])/camgeo['vec_z'][ih,iw]
-            dt =  M0/camgeo['vec_z'][ih,iw]
-            # Skip if not on the LOS
-            if (tt<0 or tt>1): continue       
-
-            # Find the intersection of line of sight and emission ring
-            tot_emission = 0.
-            tot_emission += _get_emission(camgeo,M0,R0,Z0,ih,iw,tt+0.5*dt)
-            tot_emission += _get_emission(camgeo,M0,R0,Z0,ih,iw,tt)
-            tot_emission += _get_emission(camgeo,M0,R0,Z0,ih,iw,tt-0.5*dt)
-
-            ssl  = camgeo['vec_s'][ih,iw] * abs(dt)
-
-            tot_emission = A0 * tot_emission * ssl / 3
-
-            # Accumulate emission on the pixel
-            cam_image[ih,iw] += tot_emission
-
-    # Generate inverted image
-    for iw in range(camgeo['inv_x'].shape[0]):
-        xx= camgeo['inv_x'][iw]
-        for ih in range(camgeo['inv_y'].shape[0]):
-            yy= camgeo['inv_y'][ih]
-            dd = np.sqrt((Z0-yy)**2+(R0-xx)**2)
-            cam_inver[ih,iw] += A0 * np.exp(-(dd/M0)**3)
-
-    return cam_image, cam_inver
+def _generate_image(R0=0., Z0=0., A0=0., M0=0., cam_image=[], camgeo={}):
+    
+    # Make images by emission ring at (R0,Z0)[m] with A0 amplitude, M0 [m] thickness with camgeo info
+    ih, iw = np.where(camgeo['tar_x'] != 0)
+    tt = (Z0 - camgeo['cam_z'][ih, iw]) / camgeo['vec_z'][ih, iw]
+    dt = M0 / camgeo['vec_z'][ih, iw]
+    mask = (tt >= 0) & (tt <= 1)
+    tot_emission = np.zeros_like(ih, dtype=float)
+    tot_emission[mask] += _get_emission(camgeo, M0, R0, Z0, ih[mask], iw[mask], tt[mask] + 0.5 * dt[mask])
+    tot_emission[mask] += _get_emission(camgeo, M0, R0, Z0, ih[mask], iw[mask], tt[mask])
+    tot_emission[mask] += _get_emission(camgeo, M0, R0, Z0, ih[mask], iw[mask], tt[mask] - 0.5 * dt[mask])
+    
+    ssl = camgeo['vec_s'][ih, iw] * np.abs(dt)
+    
+    tot_emission = A0 * tot_emission * ssl / 3
+    
+    cam_image[ih, iw] += tot_emission
+    
+    return cam_image
 
 def _get_emission(camgeo={},M0=0.,R0=0.,Z0=0.,ih=0,iw=0,tt=0.):
 
@@ -276,11 +181,10 @@ def _calibrating_indexes(ih=0,camgeo={}):
     y+= ih
     y = min(y,camgeo['nh']-1)
     return y
-
-def _main():
+    
+def _main(): # with hdf5 output
 
     # Main runs
-
     Rinfo  = _make_setup()
     camgeo = _load_camera(camera_save='Camera_geo.pl',
                             filename1='geom_240perp_unwarp_2022fwd.sav',
@@ -288,27 +192,31 @@ def _main():
 
     # Output of rnd
     output = {};
-    # Number of synthetic images
-    output['run_setup'] = Rinfo
-    # Synthetic image  dimension
     output['image_size']= camgeo['tar_x'].shape
-    # Inverged image  dimension
+    
+    # Inversed image  dimension
     output['inver_size']= camgeo['inv_x'].shape    
-    output['inver_R']   = camgeo['inv_x']
-    output['inver_Z']   = camgeo['inv_y']
+    output['inver_R']   = np.asarray(camgeo['inv_x'])
+    output['inver_Z']   = np.asarray(camgeo['inv_y'])
+    
+    for i in range(Rinfo['nsample']):
+        R0s, Z0s, A0s, M0s = Rinfo['R0s'][i], Rinfo['Z0s'][i], Rinfo['A0s'][i], Rinfo['M0s'][i]
+        if not (len(R0s)==len(Z0s)==len(A0s)==len(M0s)):
+            raise ValueError('>>> Given emission info is wrong!')
+    
+    print(f'>>> Completed checks. Generating {Rinfo["nsample"]} images with chunks of size {Rinfo["chunk_size"]}.')
+        
+    with h5py.File(Rinfo['outfile'], 'w') as hf:
+        images = hf.create_dataset('image', (Rinfo['nsample'], output['image_size'][0], output['image_size'][1]))
+        for i in range(0, Rinfo['nsample'], Rinfo['chunk_size']):
+                end = min(i + Rinfo['chunk_size'], Rinfo['nsample'])
+                print(f'>>> Case {i} to {end}')
+                image = [_integrate_image(Rinfo, rind, camgeo) for rind in range(i, end)]
+                images[i:end] = image
 
-    output['image']     = {}
-    output['inver']     = {}
-
-    for rind in range(Rinfo['nsample']):
-        output['image'][rind],output['inver'][rind] = _integrate_image(Rinfo,rind,camgeo)
-        if Rinfo['doplot']: _draw(output['image'][rind],output['inver'][rind],camgeo)
-
-    with open(Rinfo['outfile'],'wb') as f: pickle.dump(output,f)
+            # Save other output to hdf5 file
+        for key, value in output.items():
+            hf.create_dataset(key, data=value)
 
 if __name__ == "__main__":
     _main()
-
-
-
-
