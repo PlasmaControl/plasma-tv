@@ -1,4 +1,4 @@
-import os
+import time, os
 import numpy as np
 from scipy.io import readsav
 from scipy.interpolate import interp1d
@@ -32,7 +32,7 @@ def _make_samples():
 def _make_setup():
 
     save_name= 'synthetic_outs_v3.h5'
-    chunk_size = 100
+    chunk_size = 300
     
     Rinfo = {}
     Rinfo['outfile'], Rinfo['chunk_size'] = save_name, chunk_size
@@ -184,6 +184,7 @@ def _calibrating_indexes(ih=0,camgeo={}):
     
 def _main(): # with hdf5 output
 
+    start = time.time()
     # Main runs
     Rinfo  = _make_setup()
     camgeo = _load_camera(camera_save='Camera_geo.pl',
@@ -217,6 +218,9 @@ def _main(): # with hdf5 output
             # Save other output to hdf5 file
         for key, value in output.items():
             hf.create_dataset(key, data=value)
+            
+    end = time.time()
+    print(f'>>> Elapsed time: {end-start}')
 
 if __name__ == "__main__":
     _main()
