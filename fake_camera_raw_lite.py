@@ -8,7 +8,7 @@ import h5py
 def _make_samples():
     
     # Make R0s, Z0s, A0s, M0s
-    nsp = 2
+    nsp = 10
 
     R0s = np.zeros((nsp, 2))
     Z0s = np.zeros((nsp, 2))
@@ -32,7 +32,7 @@ def _make_samples():
 def _make_setup():
 
     save_name= 'synthetic_outs_v3.h5'
-    chunk_size = 7
+    chunk_size = 100
     
     Rinfo = {}
     Rinfo['outfile'], Rinfo['chunk_size'] = save_name, chunk_size
