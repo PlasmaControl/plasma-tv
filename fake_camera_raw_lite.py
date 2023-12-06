@@ -8,7 +8,7 @@ import h5py
 def _make_samples():
     
     # Make R0s, Z0s, A0s, M0s
-    nsp = 10
+    nsp = 5
 
     R0s = np.zeros((nsp, 2))
     Z0s = np.zeros((nsp, 2))
@@ -32,7 +32,7 @@ def _make_samples():
 def _make_setup():
 
     save_name= 'synthetic_outs_v3.h5'
-    chunk_size = 300
+    chunk_size = 200
     
     Rinfo = {}
     Rinfo['outfile'], Rinfo['chunk_size'] = save_name, chunk_size
@@ -181,8 +181,8 @@ def _calibrating_indexes(ih=0,camgeo={}):
     y+= ih
     y = min(y,camgeo['nh']-1)
     return y
-    
-def _main(): # with hdf5 output
+            
+def _main():
 
     start = time.time()
     # Main runs
