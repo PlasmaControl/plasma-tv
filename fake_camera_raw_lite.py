@@ -4,6 +4,7 @@ from scipy.io import readsav
 from scipy.interpolate import interp1d
 import pickle
 import h5py
+import multiprocessing
 
 def _make_samples():
     
@@ -181,7 +182,11 @@ def _calibrating_indexes(ih=0,camgeo={}):
     y+= ih
     y = min(y,camgeo['nh']-1)
     return y
-            
+
+def generate_image_chunk(args):
+    Rinfo, start, end, camgeo = args
+    return [_integrate_image(Rinfo, rind, camgeo) for rind in range(start, end)]
+
 def _main():
 
     start = time.time()
@@ -206,7 +211,7 @@ def _main():
             raise ValueError('>>> Given emission info is wrong!')
     
     print(f'>>> Completed checks. Generating {Rinfo["nsample"]} images with chunks of size {Rinfo["chunk_size"]}.')
-        
+    
     with h5py.File(Rinfo['outfile'], 'w') as hf:
         images = hf.create_dataset('image', (Rinfo['nsample'], output['image_size'][0], output['image_size'][1]))
         for i in range(0, Rinfo['nsample'], Rinfo['chunk_size']):
