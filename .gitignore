@@ -168,3 +168,4 @@ cython_debug/
 *.pkl
 *.hdf5
 *.h5
+*.csv

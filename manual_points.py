@@ -1,0 +1,62 @@
+from tkinter import *
+from PIL import Image, ImageTk
+import json
+import numpy as np
+import numpy as np
+from PIL import Image
+from pathlib import Path
+from scipy.io import readsav
+import csv
+
+def next_photo(event):
+    global current_photo_index
+    current_photo_index = (current_photo_index + 1) % len(photos)
+    if current_photo_index == len(photos) - 1:
+        print("Done!")
+    photo = ImageTk.PhotoImage(image=Image.fromarray(photos[current_photo_index]))
+    photo = photo._PhotoImage__photo.zoom(4)
+    w.configure(image=photo)
+    w.image = photo
+
+def previous_photo(event):
+    global current_photo_index
+    current_photo_index = (current_photo_index - 1) % len(photos)
+    photo = ImageTk.PhotoImage(image=Image.fromarray(photos[current_photo_index]))
+    photo = photo._PhotoImage__photo.zoom(4)
+    w.configure(image=photo)
+    w.image = photo
+
+def callback(event):
+    print("clicked at", event.x, event.y)
+    coordinates.append((event.x, event.y))
+
+    # Dump coordinates and photo index to file
+    with open(out_file, "a", newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([current_photo_index, event.x, event.y])
+     
+root = Tk()
+
+file_idx = 6
+tv_image_path = Path('tv_images')
+output_path = Path('xr_points')
+files = sorted(tv_image_path.glob('*.sav'))
+file = files[file_idx]
+out_file = output_path / Path(file.stem).with_suffix('.csv')
+print(file)
+photos_raw = readsav(file)['emission_structure'][0][0]
+photos=(255*(photos_raw-np.min(photos_raw))/(np.max(photos_raw)-np.min(photos_raw))).astype('uint8')
+
+current_photo_index = 1
+photo = ImageTk.PhotoImage(image=Image.fromarray(photos[current_photo_index]))
+photo = photo._PhotoImage__photo.zoom(4)
+w = Label(root, image=photo)
+w.pack()
+
+coordinates = []
+
+root.bind("<Right>", next_photo)
+root.bind("<Left>", previous_photo)
+w.bind("<Button-1>", callback)
+
+root.mainloop()
