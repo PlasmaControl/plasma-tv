@@ -40,21 +40,28 @@ def _make_samples():
     tv_image_path = Path('../outputs/hdf5/x_outer_radiation.hdf5')
     with h5py.File(tv_image_path, 'r') as f:
         x_r, x_z, r_r, r_z = f['points'][:].T
+        # x_i, r_i = f['intensity'][:].T
+        
     
-    R0s = np.array([x_r, r_r]).T
-    Z0s = np.array([x_z, r_z]).T
+    # R0s = np.array([x_r, r_r]).T
+    # Z0s = np.array([x_z, r_z]).T
+    # print(Z0s.shape)
+    
+    R0s = np.array([r_r]).T
+    Z0s = np.array([r_z]).T
     
     nsample = Z0s.shape[0]
+    print(nsample)
     
-    A0s = np.ones((nsample, 2))
-    M0s = np.ones((nsample, 2)) * 0.015
+    A0s = np.ones((nsample, 1))
+    M0s = np.ones((nsample, 1)) * 0.015
     
     return R0s, Z0s, A0s, M0s, nsample
         
 
 def _make_setup():
 
-    save_name= 's_outs_v3_limited.h5'
+    save_name= 'synthetic_outers.h5'
     chunk_size = 200
     
     Rinfo = {}
