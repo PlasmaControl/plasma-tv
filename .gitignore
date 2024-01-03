@@ -169,3 +169,4 @@ cython_debug/
 *.hdf5
 *.h5
 *.csv
+*.DS_Store
