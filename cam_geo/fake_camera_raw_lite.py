@@ -168,6 +168,7 @@ def _integrate_image(Rinfo={},info_ind=0,camgeo={}):
 def _generate_image(R0=0., Z0=0., A0=0., M0=0., cam_image=[], camgeo={}):
     
     # Make images by emission ring at (R0,Z0)[m] with A0 amplitude, M0 [m] thickness with camgeo info
+    temp_image = np.zeros_like(cam_image)
     ih, iw = np.where(camgeo['tar_x'] != 0)
     tt = (Z0 - camgeo['cam_z'][ih, iw]) / camgeo['vec_z'][ih, iw]
     dt = M0 / camgeo['vec_z'][ih, iw]
@@ -176,14 +177,12 @@ def _generate_image(R0=0., Z0=0., A0=0., M0=0., cam_image=[], camgeo={}):
     tot_emission[mask] += _get_emission(camgeo, M0, R0, Z0, ih[mask], iw[mask], tt[mask] + 0.5 * dt[mask])
     tot_emission[mask] += _get_emission(camgeo, M0, R0, Z0, ih[mask], iw[mask], tt[mask])
     tot_emission[mask] += _get_emission(camgeo, M0, R0, Z0, ih[mask], iw[mask], tt[mask] - 0.5 * dt[mask])
-    
     ssl = camgeo['vec_s'][ih, iw] * np.abs(dt)
-    
     tot_emission = A0 * tot_emission * ssl / 3
     
-    cam_image[ih, iw] += tot_emission
+    temp_image[ih, iw] = tot_emission
     
-    return cam_image
+    return temp_image
 
 def _get_emission(camgeo={},M0=0.,R0=0.,Z0=0.,ih=0,iw=0,tt=0.):
 
@@ -196,6 +195,7 @@ def _get_emission(camgeo={},M0=0.,R0=0.,Z0=0.,ih=0,iw=0,tt=0.):
     rr = np.sqrt(xx**2+yy**2)
     dd = np.sqrt((Z0-zz)**2+(R0-rr)**2)
 
+    # return dd
     return np.exp(-(dd/M0)**3)
 
 def _calibrating_indexes(ih=0,camgeo={}):
@@ -257,4 +257,4 @@ def _main():
     print(f'>>> Elapsed time: {end-start}')
 
 if __name__ == "__main__":
-    _main()
+    print('Cam_Geo_Started')
