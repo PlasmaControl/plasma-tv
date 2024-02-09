@@ -1,3 +1,9 @@
+/pix2pix_augument/datasets/
+/pix2pix_augument/checkpoints/
+/pix2pix_augument/results/
+/pix2pix_augument/build/
+/pix2pix_augument/dist/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -171,3 +177,4 @@ cython_debug/
 *.h5
 *.csv
 *.DS_Store
+*.pth
