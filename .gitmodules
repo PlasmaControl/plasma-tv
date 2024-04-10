@@ -1,0 +1,3 @@
+[submodule "get_synthetic/pix2pixptv"]
+	path = get_synthetic/pix2pixptv
+	url = git@github.com:nathanchenseanwalter/pix2pixptv.git
