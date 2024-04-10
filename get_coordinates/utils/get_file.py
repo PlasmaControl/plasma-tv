@@ -73,7 +73,7 @@ class GetTV:
         load_all(self, file_path): Loads all TV data types from a file.
     """
 
-    def __init__(self, file_path="tv_images", file_key="emission_structure"):
+    def __init__(self, file_path="../resources", file_key="emission_structure"):
         """
         Initializes a new instance of the GetTV class.
 
