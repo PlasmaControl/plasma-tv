@@ -37,7 +37,7 @@ def _make__a_lot_of_samples():
     return R0s, Z0s, A0s, M0s, nsample
 
 def _make_samples():
-    tv_image_path = Path('../outputs/hdf5/x_outer_radiation.hdf5')
+    tv_image_path = Path('../../../outputs/hdf5/x_outer_radiation.hdf5')
     with h5py.File(tv_image_path, 'r') as f:
         x_r, x_z, r_r, r_z = f['points'][:].T
         # x_i, r_i = f['intensity'][:].T
@@ -226,7 +226,7 @@ def _main():
                             filename2='cam240perp_geometry_2022.sav')
 
     # Output of rnd
-    output = {};
+    output = {}
     output['image_size']= camgeo['tar_x'].shape
     
     # Inversed image  dimension

@@ -34,10 +34,10 @@ def _make_samples():
 def _make_setup():
 
 #----- Sample input
-    R0s      = [+1.396,+1.485];   #R of radiation point R1,R2
-    Z0s      = [-1.084,-1.249];   #Z of radiation point Z1,Z2
-    A0s      = [+1.000,+1.000];   #Amplitude
-    M0s      = [+0.015,+0.015];   #Margins for
+    R0s      = [+1.8];   #R of radiation point R1,R2
+    Z0s      = [-1.35];   #Z of radiation point Z1,Z2
+    A0s      = [+1.000];   #Amplitude
+    M0s      = [+0.015];   #Margins for
     do_plot  = True               #Show image plot
     save_name= 'synthetic_outs_2pnt.pl'
 #-------
@@ -51,12 +51,12 @@ def _make_setup():
         Rinfo[key] = [];
     
 #--- Append R-info here to do the scan 
-    Rinfo['R0s'], Rinfo['Z0s'], Rinfo['A0s'], Rinfo['M0s'], Rinfo['nsample'] = _make_samples()
-    # Rinfo['R0s'].append(R0s)
-    # Rinfo['Z0s'].append(Z0s)
-    # Rinfo['A0s'].append(A0s)
-    # Rinfo['M0s'].append(M0s)
-    # Rinfo['nsample'] += 1
+    # Rinfo['R0s'], Rinfo['Z0s'], Rinfo['A0s'], Rinfo['M0s'], Rinfo['nsample'] = _make_samples()
+    Rinfo['R0s'].append(R0s)
+    Rinfo['Z0s'].append(Z0s)
+    Rinfo['A0s'].append(A0s)
+    Rinfo['M0s'].append(M0s)
+    Rinfo['nsample'] += 1
 
     #Do plot and out(save) file name
     Rinfo['doplot']  = do_plot 
@@ -224,6 +224,7 @@ def _generate_image(R0=0.,Z0=0.,A0=0.,M0=0.,cam_image=[],cam_inver=[],camgeo={})
             # Location of emission ring along the line of sight (LOS)
             tt = (Z0-camgeo['cam_z'][ih,iw])/camgeo['vec_z'][ih,iw]
             dt =  M0/camgeo['vec_z'][ih,iw]
+            
             # Skip if not on the LOS
             if (tt<0 or tt>1): continue       
 

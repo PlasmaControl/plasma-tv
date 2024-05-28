@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     root = Tk()
     tv_image_path = Path("tv_images/l-mode")
-    output_path = Path("outputs/manual_labeled_points")
+    output_path = Path("../outputs/manual_labeled_points")
 
     tv = GetTV(tv_image_path)
     files = tv.list_files()
