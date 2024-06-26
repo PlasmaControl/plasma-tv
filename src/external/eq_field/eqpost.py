@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from shutil import move, copyfile, copytree
 from scipy.interpolate import interp1d, interp2d
 from skimage import measure
-import src.external.b_field.eqpost as eqp
+import src.external.eq_field.eqpost as eqp
 
 
 class ineqdsk:

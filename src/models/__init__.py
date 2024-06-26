@@ -1,6 +1,3 @@
-from .model import Model
-from .predict import predict
-
 # __init__.py
 
-__all__ = ['Model', 'predict']
+__all__ = ['model', 'predict', 'rcn']
