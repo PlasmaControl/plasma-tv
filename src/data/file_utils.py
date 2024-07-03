@@ -131,7 +131,7 @@ class GetTV:
         Returns:
             list: A list of files in the file path.
         """
-        return [f for f in self.file_path.iterdir() if f.is_file()]
+        return [f for f in self.file_path.iterdir() if (f.suffix == ".sav")]
 
     def file_len(self, file_path, inversion=True):
         """
@@ -148,6 +148,10 @@ class GetTV:
             return len(readsav(file_path)[self.file_key][0][3])
         else:
             return len(readsav(file_path)[self.file_key][0][5])
+        
+    def file_lengths(self):
+        file_lengths = [self.file_len(f, False) for f in self.list_files()]
+        return file_lengths
 
     def load(self, file_path, type):
         """

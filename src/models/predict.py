@@ -1,9 +1,9 @@
 import numpy as np
+import joblib
 from pathlib import Path
-from sklearn.externals import joblib
 
 # Constants
-MODEL_DIR = Path("../../models/")
+MODEL_DIR = Path("../models/")
 PYTORCH = 'pytorch'
 SKLEARN = 'sklearn'
 
