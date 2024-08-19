@@ -9,7 +9,7 @@ SKLEARN = 'sklearn'
 
 # Load Models
 def list_models(model_dir = MODEL_DIR):
-    return [str(model_path) for model_path in model_dir.glob("*")]
+    return [str(model_path) for model_path in model_dir.glob("*") if model_path.suffix == ".pkl"]
     
 def load_model(model_path, model_type = SKLEARN):
     if model_type == SKLEARN:

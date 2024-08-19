@@ -7,3 +7,4 @@ scikit-image
 pathlib
 h5py
 tqdm
+numba

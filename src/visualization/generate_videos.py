@@ -3,20 +3,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import imageio
 from pathlib import Path
 from scipy.io import readsav
 import matplotlib.gridspec as gridspec
 from tqdm import tqdm
 import h5py
 import cv2
+from numba import jit
 
 from src.data.file_utils import GetTV
 
+def gen_reg_vids(in_path, out_path):
+    in_path = Path(in_path)
+    out_path = Path(out_path)
 
-def gen_reg_vids():
-    out_path = Path("outputs/regular_vids/l-mode")
-
-    tv = GetTV(Path("tv_images/l-mode"))
+    tv = GetTV(in_path)
     files = tv.list_files()
     tv_dim = tv.load(files[0], "vid")[0].shape
 
@@ -25,15 +27,13 @@ def gen_reg_vids():
 
     width = 5
     w, h = width, tv_dim[0] / tv_dim[1] * width
+    
     for file in files:
-
         tv_image = tv.load(file, "vid")
         tv_times = tv.load(file, "vid_times")
 
         # Create the figure and axes
         fig, axes = plt.subplots(1, 1)
-
-        # Initialize the image
         image1 = axes.imshow(tv_image[0], cmap="plasma", vmin=0, vmax=255)
         axes.axis("off")
         plt.suptitle(f"{file.stem}")
@@ -42,25 +42,35 @@ def gen_reg_vids():
             left=0, bottom=0.05, right=1, top=0.95, wspace=None, hspace=None
         )
         fig.colorbar(image1, ax=axes, orientation="horizontal", pad=0.01, shrink=0.8)
-        # Define the update function for the animation
+        
+        frames = []
+
         def update(frame):
-            image1.set_array(np.flip(tv_image[frame], 1))
+            flipped_image = np.flip(tv_image[frame], 1)
+            image1.set_array(flipped_image)
             axes.set_title(f"Time: {tv_times[frame]:.2e} ms, Frame: {frame}")
             return (image1,)
 
-        # Create the animation
+        for i in tqdm(range(len(tv_image))):
+            update(i)
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            frames.append(image)
+
         ani = animation.FuncAnimation(
-            fig, update, frames=tqdm(range(len(tv_image))), interval=30, blit=True
+            fig, update, frames=len(tv_image), interval=30, blit=True
         )
 
-        # Save the animation to a file
         output_file = out_path / Path(file.stem).with_suffix(".mp4")
 
         FFwriter = animation.FFMpegWriter(fps=30, extra_args=["-vcodec", "libx264"])
         ani.save(output_file, writer=FFwriter)
-
         print(f"Animation saved to: {output_file}")
 
+        output_file_gif = out_path / Path(file.stem).with_suffix(".gif")
+        imageio.mimsave(output_file_gif, frames, fps=30)
+        print(f"GIF saved to: {output_file_gif}")
 
 def gen_comparison_vids():
     out_path = Path("outputs/comparison_vids/l-mode")
