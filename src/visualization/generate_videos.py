@@ -10,7 +10,6 @@ import matplotlib.gridspec as gridspec
 from tqdm import tqdm
 import h5py
 import cv2
-from numba import jit
 
 from src.data.file_utils import GetTV
 
@@ -72,6 +71,64 @@ def gen_reg_vids(in_path, out_path):
         imageio.mimsave(output_file_gif, frames, fps=30)
         print(f"GIF saved to: {output_file_gif}")
 
+def gen_inversion_vids(in_path, out_path):
+    in_path = Path(in_path)
+    out_path = Path(out_path)
+
+    tv = GetTV(in_path)
+    files = tv.list_files()
+    tv_dim = tv.load(files[0], "vid")[0].shape
+
+    # Create the subfolder if it doesn't exist
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    width = 1
+    w, h = width, tv_dim[0] / tv_dim[1] * width
+    
+    for file in files:
+        tv_image = tv.load(file, "inverted")
+        # tv_times = tv.load(file, "vid_times")
+
+        # Create the figure and axes
+        fig, axes = plt.subplots(1, 1)
+        image1 = axes.imshow(tv_image[0], cmap="plasma", vmin=0, vmax=255)
+        axes.axis("off")
+        plt.suptitle(f"{file.stem}")
+        fig.set_size_inches(w, h * 1.7)
+        fig.subplots_adjust(
+            left=0, bottom=0.05, right=1, top=0.95, wspace=None, hspace=None
+        )
+        fig.colorbar(image1, ax=axes, orientation="horizontal", pad=0.01, shrink=0.8)
+        
+        frames = []
+
+        def update(frame):
+            flipped_image = np.flip(tv_image[frame], 1)
+            image1.set_array(flipped_image)
+            axes.set_title(f"Frame: {frame}")
+            return (image1,)
+
+        for i in tqdm(range(len(tv_image))):
+            update(i)
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            frames.append(image)
+
+        ani = animation.FuncAnimation(
+            fig, update, frames=len(tv_image), interval=30, blit=True
+        )
+
+        output_file = out_path / Path(file.stem).with_suffix(".mp4")
+
+        FFwriter = animation.FFMpegWriter(fps=30, extra_args=["-vcodec", "libx264"])
+        ani.save(output_file, writer=FFwriter)
+        print(f"Animation saved to: {output_file}")
+
+        output_file_gif = out_path / Path(file.stem).with_suffix(".gif")
+        imageio.mimsave(output_file_gif, frames, fps=30)
+        print(f"GIF saved to: {output_file_gif}")
+    
 def gen_comparison_vids():
     out_path = Path("outputs/comparison_vids/l-mode")
 

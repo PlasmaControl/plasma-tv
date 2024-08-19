@@ -61,10 +61,10 @@ if __name__ == "__main__":
     """
     Main execution block initializing the GUI, loading images, and binding event handlers.
     """
-    file_idx = 2  # Example index of the file to load
+    file_idx = 0  # Example index of the file to load
     root = Tk()
-    tv_image_path = Path("tv_images/l-mode")
-    output_path = Path("../outputs/manual_labeled_points")
+    tv_image_path = Path("data/raw/tv_images/campaign_24")
+    output_path = Path("data/labels/xr_points")
 
     tv = GetTV(tv_image_path)
     files = tv.list_files()
