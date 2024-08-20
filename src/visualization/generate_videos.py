@@ -19,6 +19,7 @@ def gen_reg_vids(in_path, out_path):
 
     tv = GetTV(in_path)
     files = tv.list_files()
+    files = sorted(files)
     tv_dim = tv.load(files[0], "vid")[0].shape
 
     # Create the subfolder if it doesn't exist
@@ -70,6 +71,7 @@ def gen_reg_vids(in_path, out_path):
         output_file_gif = out_path / Path(file.stem).with_suffix(".gif")
         imageio.mimsave(output_file_gif, frames, fps=30)
         print(f"GIF saved to: {output_file_gif}")
+        plt.close()
 
 def gen_inversion_vids(in_path, out_path):
     in_path = Path(in_path)
@@ -77,35 +79,37 @@ def gen_inversion_vids(in_path, out_path):
 
     tv = GetTV(in_path)
     files = tv.list_files()
-    tv_dim = tv.load(files[0], "vid")[0].shape
+    tv_dim = tv.load(files[0], "inverted")[0].shape
 
     # Create the subfolder if it doesn't exist
     out_path.mkdir(parents=True, exist_ok=True)
 
-    width = 1
-    w, h = width, tv_dim[0] / tv_dim[1] * width
+    width = 5
+    w, h = width, width
     
     for file in files:
         tv_image = tv.load(file, "inverted")
-        # tv_times = tv.load(file, "vid_times")
+        tv_times = tv.load(file, "times")
 
         # Create the figure and axes
         fig, axes = plt.subplots(1, 1)
-        image1 = axes.imshow(tv_image[0], cmap="plasma", vmin=0, vmax=255)
+        image1 = axes.imshow(tv_image[0], cmap="plasma", vmin=0, vmax=1)
         axes.axis("off")
         plt.suptitle(f"{file.stem}")
-        fig.set_size_inches(w, h * 1.7)
+        fig.set_size_inches(w, h)
         fig.subplots_adjust(
             left=0, bottom=0.05, right=1, top=0.95, wspace=None, hspace=None
         )
         fig.colorbar(image1, ax=axes, orientation="horizontal", pad=0.01, shrink=0.8)
+        fig.tight_layout()
         
         frames = []
 
         def update(frame):
-            flipped_image = np.flip(tv_image[frame], 1)
+            time = np.round(tv_times[frame], 0)
+            flipped_image = np.flip(tv_image[frame], 0)
             image1.set_array(flipped_image)
-            axes.set_title(f"Frame: {frame}")
+            axes.set_title(f"Time: {time} ms, Frame: {frame}")
             return (image1,)
 
         for i in tqdm(range(len(tv_image))):
@@ -128,12 +132,14 @@ def gen_inversion_vids(in_path, out_path):
         output_file_gif = out_path / Path(file.stem).with_suffix(".gif")
         imageio.mimsave(output_file_gif, frames, fps=30)
         print(f"GIF saved to: {output_file_gif}")
+        plt.close()
     
 def gen_comparison_vids():
     out_path = Path("outputs/comparison_vids/l-mode")
 
     tv = GetTV(Path("tv_images/l-mode"))
     files = tv.list_files()
+    files = sorted(files)
 
     # Create the subfolder if it doesn't exist
     out_path.mkdir(parents=True, exist_ok=True)

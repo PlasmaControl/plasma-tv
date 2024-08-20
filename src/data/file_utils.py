@@ -131,7 +131,7 @@ class GetTV:
         Returns:
             list: A list of files in the file path.
         """
-        return [f for f in self.file_path.iterdir() if (f.suffix == ".sav")]
+        return sorted([f for f in self.file_path.iterdir() if (f.suffix == ".sav")])
 
     def file_len(self, file_path, inversion=True):
         """
