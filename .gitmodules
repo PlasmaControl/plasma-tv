@@ -1,3 +1,6 @@
 [submodule "get_synthetic/pix2pixptv"]
 	path = get_synthetic/pix2pixptv
 	url = git@github.com:nathanchenseanwalter/pix2pixptv.git
+[submodule "keras2c"]
+	path = keras2c
+	url = https://github.com/PlasmaControl/keras2c.git
