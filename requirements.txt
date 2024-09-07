@@ -8,3 +8,4 @@ pathlib
 h5py
 tqdm
 numba
+pandas
