@@ -7,8 +7,10 @@ from tqdm.notebook import tqdm
 
 from src.data.file_utils import GetTV
 
+# scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com:/cscratch/jalalvanda/tangtv .
+
 ml_id = ''
-run_type = 'all'
+run_type = 'aza'
 
 prep_filename = 'weighted_outer_dataset_' + run_type
 prediction_filename = 'weighted_outer_' + run_type
@@ -68,6 +70,7 @@ for file in files:
     vid_input = np.expand_dims(tv_image, axis=3)
     inverted = tv.load(file, 'inverted')
     elevation = tv.load(file, 'elevation')[0]
+    radii = tv.load(file, 'radii')[0]
     with open(point_save_name, 'rb') as f:
         prediction_cartesian = pickle.load(f)
     prediction = get_index(prediction_cartesian, elevation, )
@@ -77,20 +80,19 @@ for file in files:
     print("Animating...")
     fig, ax = plt.subplots(1, 1, figsize=(5, 5))
     
-    img = ax.imshow(inverted[0], origin='lower')
-    hline_label = ax.axhline(labels[0], c='lime', label='label')
-    hline_prediction = ax.axhline(prediction[0], c='red', label='prediction', ls='--')
+    img = ax.pcolor(radii, elevation, inverted[0])
+    hline_label = ax.axhline(labels_cartesian[0], c='lime', label='label')
+    hline_prediction = ax.axhline(prediction_cartesian[0], c='red', label='prediction', ls='--')
     ax.legend(loc='upper right')
     ax.set_title(f'Inverted View: 0')
-
     fig.suptitle(f"Shot {file.stem.split('_')[-1]}")
     frames = []
     # Function to update the plot
     def update(idx):
-        img.set_data(inverted[idx])
+        img.set_array(inverted[idx])
         
-        hline_label.set_ydata([labels[idx]])
-        hline_prediction.set_ydata([prediction[idx]])
+        hline_label.set_ydata([labels_cartesian[idx]])
+        hline_prediction.set_ydata([prediction_cartesian[idx]])
         
         ax.set_title(f'Inverted View: {idx}')
         

@@ -38,7 +38,7 @@ def reduce_res_2darr(arr, num):
     """Reduce a 2D array by averaging over blocks of size num."""
     return arr[:, ::num, ::num]
 
-run_type = 'all'
+run_type = 'campaign_24'
 prep_filename = 'weighted_outer_dataset_' + run_type
 prediction_filename = 'weighted_outer_' + run_type
 algorithm = 'linear'
@@ -56,7 +56,7 @@ ml_id = ''
 file_name = prep_filename + '.h5'
 
 mdl2 = load_model(f"{model_path / prediction_filename}{ml_id}.keras")
-weight_ml_point_save_path = Path('../data/processed/weight_ml_point') / ml_id
+weight_ml_point_save_path = Path('../data/processed/weight_ml_point/dl') / ml_id
 for file in files:
     
     print('Shot:', file.stem.split('_')[-1])
@@ -64,8 +64,7 @@ for file in files:
     label_file = (label_path / file.stem).with_suffix('.pkl')
     with open(label_file, 'rb') as f:
         labels_cartesian = pickle.load(f)
-    frames = tv.load(file, 'frames').astype('int')
-    tv_image = tv.load(file, 'vid')[frames]
+    tv_image = tv.load(file, 'vid')
     tv_image = reduce_res_2darr(tv_image, 3)
     tv_image = np.expand_dims(tv_image, axis=3)
     

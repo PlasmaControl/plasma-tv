@@ -10,6 +10,7 @@ import matplotlib.gridspec as gridspec
 from tqdm import tqdm
 import h5py
 import cv2
+import pickle
 
 from src.data.file_utils import GetTV
 
@@ -18,23 +19,27 @@ def gen_reg_vids(in_path, out_path):
     out_path = Path(out_path)
 
     tv = GetTV(in_path)
-    files = tv.list_files()
-    files = sorted(files)
-    tv_dim = tv.load(files[0], "vid")[0].shape
+    # files = tv.list_files()
+    # files = sorted(files)
+    files_path = Path('../data/raw/tv_images/').rglob('*.pkl')
+    files = [f for f in files_path]
+    # tv_dim = tv.load(files[0], "vid")[0].shape
 
     # Create the subfolder if it doesn't exist
     out_path.mkdir(parents=True, exist_ok=True)
 
     width = 5
-    w, h = width, tv_dim[0] / tv_dim[1] * width
+    w, h = 5, 5 * 240 / 720 # width, tv_dim[0] / tv_dim[1] * width
     
     for file in files:
-        tv_image = tv.load(file, "vid")
-        tv_times = tv.load(file, "vid_times")
+        # tv_image = tv.load(file, "vid")
+        # tv_times = tv.load(file, "vid_times")
+        tv_image, tv_times = pickle.load(open(file, 'rb'),encoding='latin1')
+        tv_image = np.round(tv_image * (255.0/1000.0)).astype('uint8')[:,::2,:]
 
         # Create the figure and axes
         fig, axes = plt.subplots(1, 1)
-        image1 = axes.imshow(tv_image[0], cmap="plasma", vmin=0, vmax=255)
+        image1 = axes.imshow(tv_image[0], cmap="plasma", vmin=0, vmax=1000)
         axes.axis("off")
         plt.suptitle(f"{file.stem}")
         fig.set_size_inches(w, h * 1.7)
