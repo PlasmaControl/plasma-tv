@@ -1,9 +1,0 @@
-For Personal Computer
-python train.py --dataroot ../outputs/hdf5/img_2_img_proof.h5 --name tv_inv_proof --model pix2pix --norm instance --direction BtoA --dataset_mode hdf5 --gpu_ids -1 --input_nc 1 --output_nc 1
-
-python test.py --dataroot ../outputs/hdf5/img_2_img_proof.h5 --name tv_inv_proof --model pix2pix --norm instance --direction BtoA --dataset_mode hdf5 --gpu_ids -1 --input_nc 1 --output_nc 1 --no_dropout
-
-For Traverse
-python train.py --dataroot ../outputs/hdf5/img_2_img_proof.h5 --name tv_inv_proof --model pix2pix --direction BtoA --dataset_mode hdf5 --gpu_ids 0,1,2,3 --batch_size 4 --norm instance --display_id 0 --input_nc 1 --output_nc 1
-
-(sample continue training) --continue_train --epoch 160 --epoch_count 161

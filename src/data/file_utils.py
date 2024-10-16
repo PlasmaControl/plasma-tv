@@ -17,56 +17,28 @@ def load_pickle(file_path):
 def write_pickle(data, file_path):
     with open(file_path, 'wb') as pkl_file:
         pickle.dump(data, pkl_file)
-        
-class H5Parse:
-    """
-    A class for reading and writing data from an HDF5 file.
-    """
 
-    def read(self, filepath):
-        """
-        Read data from the specified HDF5 file.
-
-        Args:
-            filepath (str): The path to the HDF5 file.
-
-        Returns:
-            dict: A dictionary containing the data read from the file.
-        """
-        with h5py.File(filepath, "r") as f:
-            data = {key: f[key][:] for key in f}
-        return data
-
-    def list_keys(self, filepath):
-        """
-        List all the keys in the specified HDF5 file.
-
-        Args:
-            filepath (str): The path to the HDF5 file.
-
-        Returns:
-            list: A list of keys present in the file.
-        """
-        with h5py.File(filepath, "r") as f:
-            return [key for key in f]
-
-    def write(self, filepath, data):
-        """
-        Write data to the specified HDF5 file.
-
-        Args:
-            filepath (str): The path to the HDF5 file.
-            data (dict): A dictionary containing the data to be written.
-
-        Returns:
-            None
-        """
-        with h5py.File(filepath, "w") as f:
-            for key in data:
-                f.create_dataset(key, data[key])
-
-
-class GetTV:
+class GetPkl:
+    def __init__(self, file_path="data/raw/"):
+        self.file_path = Path(file_path).rglob('*.pkl')
+    
+    def list_files(self, display=False):
+        files = sorted([f for f in self.file_path])
+        if display:
+            for idx, file in enumerate(files):
+                print(idx, '\t',file.stem.split('_')[-1])
+        else:
+            print('Number of files:', len(files))
+        return files
+    
+    def load_raw(self, file_path):
+        return  pickle.load(open(file_path, 'rb'),encoding='latin1')
+    
+    def load_processed(self, file_path):
+        vid, time = self.load_raw(file_path)
+        return  np.round(vid * (255.0/1000.0)).astype('uint8')[:,::2,:], time
+    
+class GetEmission:
     """
     A class for handling TV files.
 
@@ -85,7 +57,7 @@ class GetTV:
         load_all(self, file_path): Loads all TV data types from a file.
     """
 
-    def __init__(self, file_path="data/raw/tv_images", file_key="emission_structure"):
+    def __init__(self, file_path="data/raw/", file_key="emission_structure"):
         """
         Initializes a new instance of the GetTV class.
 
@@ -124,14 +96,22 @@ class GetTV:
         """
         self.file_path = Path(file_path)
 
-    def list_files(self):
+    def list_files(self, display=False):
         """
         Returns a list of files in the file path.
 
         Returns:
             list: A list of files in the file path.
         """
-        return sorted([f for f in self.file_path.iterdir() if (f.suffix == ".sav")])
+        files = sorted([f for f in self.file_path.iterdir() if (f.suffix == ".sav")])
+        
+        if display:
+            for idx, file in enumerate(files):
+                print(idx, '\t',file.stem.split('_')[-1])
+        else:
+            print('Number of files:', len(files))
+            
+        return files
 
     def file_len(self, file_path, inversion=True):
         """
@@ -167,7 +147,7 @@ class GetTV:
         dat = readsav(file_path)[self.file_key][0][self.index_dict[type]]
         return dat
 
-    def load_all(self, file_path):
+    def load_all(self, file_path, resize=True):
         """
         Loads all TV data types from a file.
 
@@ -177,5 +157,14 @@ class GetTV:
         Returns:
             list: A list of loaded TV data types.
         """
-        dat = [readsav(file_path)[self.file_key][0][type] for type in range(8)]
-        return dat
+        print('Extracting sav for shot:', file_path.stem.split('_')[-1])
+        [inverted,radii,elevation,frames,times,vid_frames,vid_times,vid] = [readsav(file_path)[self.file_key][0][type] for type in range(8)]
+        if resize:
+            inverted_dim = inverted.shape
+            if (inverted_dim[1] != 201) or (inverted_dim[2] != 201):
+                print('Resizing...')
+                inverted = inverted[:,:201,:201]
+                radii = radii[:,:201]
+                elevation = elevation[:,:201]
+                inverted_dim = inverted.shape
+        return [inverted,radii,elevation,frames,times,vid_frames,vid_times,vid]

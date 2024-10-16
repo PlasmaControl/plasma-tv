@@ -20,14 +20,9 @@ pip install -e .
 This way, you can go into src and modify the code, and you don't have to reinstall. And also then you can directly import like `from src.idk import chicken as ch`
 
 # Copying Videos From Aza
-scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com:/cscratch/jalalvanda/tangtv/200910.txt /scratch/gpfs/nc1514/plasma-tv/data/raw/tv_images/aza_9_18
 
-ssh -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com 'ls /cscratch/jalalvanda/tangtv/tangtv_*.pkl | grep -E "tangtv_([0-9]{6,}).pkl" | awk -F"[_|.]" '\''$2 >= 200950'\'
+scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@omega.gat.com:/cscratch/chenn/12_03_2024.h5 /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
 
-scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com $(ssh -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com 'ls /cscratch/jalalvanda/tangtv/tangtv_*.pkl | grep -E "tangtv_([0-9]{6,}).pkl" | awk -F"[_|.]" '\''$2 >= 200950'\') .
+rsync -a --ignore-existing -P -e 'ssh -o "ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p"' chenn@omega.gat.com:/cscratch/chenn/tangtv/*.pkl /scratch/gpfs/nc1514/plasma-tv/data/raw/12_03_2024
 
-scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com:/cscratch/chenn/detach_aza.h5 /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
-
-rsync -a --ignore-existing -P -e 'ssh -o "ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p"' chenn@iris.gat.com:/cscratch/jalalvanda/tangtv/tangtv_*.mp4 /scratch/gpfs/nc1514/plasma-tv/outputs/video/azavids
-
-scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@iris.gat.com:/cscratch/chenn/aps_sig.h5 /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
+Iamahamburger123!!!Yaaa
