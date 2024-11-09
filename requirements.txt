@@ -1,11 +1,30 @@
+# Extra index for PyTorch packages
+--extra-index-url https://download.pytorch.org/whl/cu124
+
+# Essential packages
 numpy
 matplotlib
 opencv-python
 scipy
 scikit-learn
+scikit-learn-intelex
 scikit-image
 pathlib
 h5py
 tqdm
 numba
 pandas
+
+# Additional utilities
+timm
+jupyter
+jupyterlab
+ipywidgets
+
+# PyTorch and related packages
+torch
+torchvision
+torchaudio
+
+# Install the current package in editable mode
+-e .

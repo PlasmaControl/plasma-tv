@@ -83,7 +83,7 @@ def match_images_to_histogram(image_array, target_cdf, bin_edges):
     matched_images = np.empty_like(image_array)
     for i in range(M):
         matched_images[i] = match_image_to_histogram(image_array[i], target_cdf, bin_edges)
-    return matched_images * 256
+    return matched_images * 255
 
 def normalize_image(image_array):
     means = np.mean(image_array, axis=(1, 2))

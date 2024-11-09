@@ -1,0 +1,27 @@
+name: plasma-tv
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+  - conda-forge
+dependencies:
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.4
+  - timm
+  - opencv
+  - scikit-learn
+  - scikit-learn-intelex
+  - scikit-image
+  - pathlib
+  - h5py
+  - tqdm
+  - matplotlib
+  - numpy
+  - jupyter
+  - jupyterlab
+  - ipywidgets
+  - pip
+  - pip:
+    - -e .

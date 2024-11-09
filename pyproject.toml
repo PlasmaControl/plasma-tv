@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plasma_tv"
+version = "0.1"
+dependencies = [
+    # Add your project's dependencies here
+]
+
+[tool.setuptools]
+packages = {find = {where = ["src"]}}
