@@ -1,4 +1,4 @@
-name: plasma-tv
+name: plasma_tv
 channels:
   - pytorch
   - nvidia

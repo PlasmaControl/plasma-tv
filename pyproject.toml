@@ -1,13 +1,29 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "plasma_tv"
-version = "0.1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
 dependencies = [
-    # Add your project's dependencies here
+    "h5py>=3.12.1",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.10.0",
+    "numpy>=2.2.2",
+    "opencv-python>=4.11.0.86",
+    "pandas>=2.2.3",
+    "pathlib>=1.0.1",
+    "scikit-image>=0.25.1",
+    "scikit-learn>=1.6.1",
+    "scikit-learn-intelex>=2025.1.0",
+    "scipy>=1.15.1",
+    "seaborn>=0.13.2",
+    "timm>=1.0.14",
+    "torch>=2.6.0",
+    "torchaudio>=2.6.0",
+    "torchvision>=0.21.0",
+    "tqdm>=4.67.1",
 ]
 
-[tool.setuptools]
-packages = {find = {where = ["src"]}}
+[tool.hatch.build.targets.wheel]
+where = ["src/plasma_tv/**"]

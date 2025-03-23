@@ -25,8 +25,8 @@ This way, you can go into src and modify the code, and you don't have to reinsta
 
 # Copying Videos From Aza
 
-scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@omega.gat.com:/cscratch/chenn/12_03_2024.h5 /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
+scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@omega.gat.com:/cscratch/chenn/tangtv/irtv_12_03_2024.pkl /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
 
-rsync -a --ignore-existing -P -e 'ssh -o "ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p"' chenn@omega.gat.com:/cscratch/chenn/tangtv/*.pkl /scratch/gpfs/nc1514/plasma-tv/data/raw/12_03_2024
+rsync -a --ignore-existing -P -e 'ssh -o "ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p"' chenn@omega.gat.com:/cscratch/chenn/tangtv/irtv_12_03_2024.pkl /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
 
 Iamahamburger123!!!Yaaa
