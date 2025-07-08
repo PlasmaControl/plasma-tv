@@ -20,13 +20,3 @@ source myenv/bin/activate
 pip install -r requirements.txt
 pip install -e .
 ```
-
-This way, you can go into src and modify the code, and you don't have to reinstall. And also then you can directly import like `from src.idk import chicken as ch`
-
-# Copying Videos From Aza
-
-scp -r -o 'ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p' chenn@omega.gat.com:/cscratch/chenn/tangtv/irtv_12_03_2024.pkl /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
-
-rsync -a --ignore-existing -P -e 'ssh -o "ProxyCommand ssh -p 2039 chenn@cybele.gat.com -W %h:%p"' chenn@omega.gat.com:/cscratch/chenn/tangtv/irtv_12_03_2024.pkl /scratch/gpfs/nc1514/plasma-tv/data/external/toksearch
-
-Iamahamburger123!!!Yaaa
